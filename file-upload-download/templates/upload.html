@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script>
+        function uploadFile(event) {
+            event.preventDefault();  
+
+            let formData = new FormData(document.getElementById('uploadForm'));
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('파일 업로드에 실패했습니다.');
+                }
+                return response.json();  
+            }).then(data => {
+                let messageDiv = document.getElementById('message');
+                messageDiv.innerHTML = `<p>${data.message}</p>`;
+                messageDiv.style.display = 'block';
+            }).catch(error => {
+                let messageDiv = document.getElementById('message');
+                messageDiv.innerHTML = `<p>파일 업로드에 실패했습니다. 다시 시도해주세요.</p>`;
+                messageDiv.style.display = 'block';
+                console.log(error);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('fileInput').addEventListener('change', function() {
+                let messageDiv = document.getElementById('message');
+                messageDiv.style.display = 'none';  
+                messageDiv.innerHTML = '';         
+            });
+        });
+    </script>
+</head>
+<body>
+    <h2>파일 업로드</h2>
+    <form id="uploadForm" enctype="multipart/form-data" onsubmit="uploadFile(event)">
+        <input type="file" id="fileInput" name="file" />  
+        <input type="submit" value="Upload" />
+    </form>
+
+    <h2>파일 다운로드</h2>
+    <form action="/download" method="GET">
+        <input type="text" name="filename" placeholder="파일명을 입력하세요" />
+        <input type="submit" value="Download" />
+    </form>
+</body>
+</html>
